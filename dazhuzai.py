@@ -21,25 +21,26 @@ for articleId in articleIds:
         info = request.urlopen("http://www.dazhuzaibook.com/book/" + articleId + ".html")
         articlePage = info.read().decode('utf-8')
         article = re.findall(r"<!-- end header -->(.+)<div class=\"bg\">", articlePage, re.S)
+        break
 fo.close()
 
+if article:
+    sender = "isender@sina.cn"
+    recevier = "temp@xianwangsou.com"
 
-sender = "isender@sina.cn"
-recevier = "temp@xianwangsou.com"
+    message = MIMEText(article[0], 'html', 'utf-8')
+    message['From'] = sender
+    message['To'] = recevier
+    subject = re.findall(r"<h1>(.+)</h1>", article[0], re.S)
+    message['Subject'] = '大主宰 ' + subject[0]
 
-message = MIMEText(article[0], 'html', 'utf-8')
-message['From'] = sender
-message['To'] = recevier
-subject = re.findall(r"<h1>(.+)</h1>", article[0], re.S)
-message['Subject'] = '大主宰 ' + subject[0]
-
-try:
-    smtpObj = smtplib.SMTP()
-    smtpObj.connect('smtp.sina.cn')
-    smtpObj.login(sender, '134679')
-    smtpObj.sendmail(sender, recevier, message.as_string())
-    fo.write(articleId)
-    print ('send mail success')
-except smtplib.SMTPException:
-    print ('send mail fail')
+    try:
+        smtpObj = smtplib.SMTP()
+        smtpObj.connect('smtp.sina.cn')
+        smtpObj.login(sender, '134679')
+        smtpObj.sendmail(sender, recevier, message.as_string())
+        fo.write(articleId)
+        print ('send mail success')
+    except smtplib.SMTPException:
+        print ('send mail fail')
 
