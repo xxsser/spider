@@ -36,7 +36,7 @@ message['Subject'] = '大主宰 ' + subject[0]
 try:
     smtpObj = smtplib.SMTP()
     smtpObj.connect('smtp.sina.cn')
-    smtpObj.login(sender, '134679')
+    smtpObj.login(sender, '*****')
     smtpObj.sendmail(sender, recevier, message.as_string())
     fo.write(articleId)
     print ('send mail success')
