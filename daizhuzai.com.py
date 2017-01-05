@@ -6,44 +6,46 @@ import re
 import smtplib
 from email.mime.text import MIMEText
 
-index = request.urlopen("http://www.dazhuzaibook.com")
+index = request.urlopen("http://m.daizhuzai.com/1/list/?page=1&sort=desc")
 
 result = index.read().decode('utf-8')
 
-articleIds = re.findall(r"http://www\.dazhuzaibook\.com/book/(\d+)\.html", result)
-fo = open('./tmp.log', 'r+')
+articleMatch = re.search(r"<a href=\"/1/t(.+).html\" title=\"(.+)\">", result)
+newId = articleMatch.group(1)
+newTitle = articleMatch.group(2)
+
+fo = open('./daizhuzai_com.log', 'r+')
 # fo.write(match[-1])
 lastId = fo.read()
 
 article = False
 
-for articleId in articleIds:
-    if int(articleId) > int(lastId):
-        fo.seek(0, 0)
-        info = request.urlopen("http://www.dazhuzaibook.com/book/" + articleId + ".html")
-        articlePage = info.read().decode('utf-8')
-        article = re.findall(r"<!-- end header -->(.+)<div class=\"bg\">", articlePage, re.S)
-        break
+if int(lastId) < int(newId):
+    info = request.urlopen("http://m.daizhuzai.com/1/t189713.html")
+    articlePage = info.read().decode('utf-8')
+    article = re.search(r"<p class=\"title\">.+<br/>", articlePage, re.S)
 
 
 if article != False:
     sender = "isender@sina.cn"
     recevier = "temp@xianwangsou.com"
 
-    message = MIMEText(article[0], 'html', 'utf-8')
+    message = MIMEText(article.group(0), 'html', 'utf-8')
     message['From'] = sender
     message['To'] = recevier
-    subject = re.findall(r"<h1>(.+)</h1>", article[0], re.S)
-    message['Subject'] = '大主宰 ' + subject[0]
+    message['Subject'] = '大主宰 ' + newTitle
 
     try:
         smtpObj = smtplib.SMTP()
         smtpObj.connect('smtp.sina.cn')
         smtpObj.login(sender, '134679')
         smtpObj.sendmail(sender, recevier, message.as_string())
-        fo.write(articleId)
-        print ('send mail success')
+        fo.seek(0, 0)
+        fo.write(newId)
+        print ('send article id: '+ newId +' success')
     except smtplib.SMTPException:
         print ('send mail fail')
+else:
+    print ('havn\'t new article')
 
 fo.close()
