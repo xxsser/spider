@@ -15,6 +15,8 @@ fo = open('./tmp.log', 'r+')
 # fo.write(match[-1])
 lastId = fo.read()
 
+article = False
+
 for articleId in articleIds:
     if int(articleId) > int(lastId):
         fo.seek(0, 0)
@@ -22,9 +24,9 @@ for articleId in articleIds:
         articlePage = info.read().decode('utf-8')
         article = re.findall(r"<!-- end header -->(.+)<div class=\"bg\">", articlePage, re.S)
         break
-fo.close()
 
-if article:
+
+if article != False:
     sender = "isender@sina.cn"
     recevier = "temp@xianwangsou.com"
 
@@ -44,3 +46,4 @@ if article:
     except smtplib.SMTPException:
         print ('send mail fail')
 
+fo.close()
