@@ -2,6 +2,8 @@
 # -*- coding:utf-8 -*-
 
 from urllib import request
+from os import path
+from inspect import getfile, currentframe
 import re
 import smtplib
 from email.mime.text import MIMEText
@@ -11,7 +13,8 @@ index = request.urlopen("http://www.dazhuzaibook.com")
 result = index.read().decode('utf-8')
 
 articleIds = re.findall(r"http://www\.dazhuzaibook\.com/book/(\d+)\.html", result)
-fo = open('./tmp.log', 'r+')
+currentDir = path.dirname(path.abspath(getfile(currentframe())))
+fo = open(currentDir +'/dazhuzai.log', 'r+')
 # fo.write(match[-1])
 lastId = fo.read()
 
@@ -39,7 +42,7 @@ if article != False:
     try:
         smtpObj = smtplib.SMTP()
         smtpObj.connect('smtp.sina.cn')
-        smtpObj.login(sender, '134679')
+        smtpObj.login(sender, '******')
         smtpObj.sendmail(sender, recevier, message.as_string())
         fo.write(articleId)
         print ('send mail success')
