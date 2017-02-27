@@ -22,12 +22,11 @@ fo = open(currentDir + '/daizhuzai_com.log', 'r+')
 lastId = fo.read()
 
 article = False
-
 if int(lastId) < int(newId):
     info = request.urlopen("http://m.daizhuzai.com/1/t" + newId + ".html")
     articlePage = info.read().decode('utf-8')
-    article = re.search(r"<p class=\"title\">.+<br/>", articlePage, re.S)
-
+    article = re.search(r"<div id=\"articlecon\" class=\"articlecon\">(.+)</div>.+<div id=\"pagebottomad1\">", articlePage, re.S)
+    print(article.group(1))
 
 if article != False:
     sender = "isender@sina.cn"
